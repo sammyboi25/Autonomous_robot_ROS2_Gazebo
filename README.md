@@ -5,7 +5,6 @@
   <img src="https://img.shields.io/badge/ROS_2-Jazzy-blue?style=flat-square&logo=ros" alt="ROS 2 Jazzy">
   <img src="https://img.shields.io/badge/Gazebo-Harmonic-orange?style=flat-square" alt="Gazebo Harmonic">
   <img src="https://img.shields.io/badge/Navigation-Nav2-green?style=flat-square" alt="Nav2">
-  <img src="https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B-blueviolet?style=flat-square" alt="Python and C++">
   <img src="https://img.shields.io/badge/License-MIT-purple?style=flat-square" alt="MIT License">
 </p>
 
@@ -21,22 +20,35 @@ The project is organized into two modular ROS 2 packages: `robot_des` for the ro
 
 ### The Robot
 
-A compact, square differential-drive mobile robot featuring two powered wheels, a caster wheel, a 2D LiDAR, and a camera.
+A compact, square differential-drive robot featuring two powered wheels, a caster wheel, a 2D LiDAR, and an RGB camera.
 
 <p align="center">
   <img
     src="https://github.com/user-attachments/assets/0a9f5de8-94ff-45d7-8f55-1ed691918038"
-    width="600"
+    width="450"
     alt="Differential-drive robot model"
   />
 </p>
 
-### Simulation and Navigation
+### Gazebo Harmonic — Indoor Simulation
 
-| Gazebo Harmonic — Indoor Environment | RViz2 — Navigation and Costmaps |
-|:---:|:---:|
-| <img src="https://github.com/user-attachments/assets/d40df4a0-048f-4152-818b-a91162a83639" width="480" alt="Robot in the Gazebo indoor environment"> | <img src="https://github.com/user-attachments/assets/c82dc293-cc08-413c-846c-09fa1967adc8" width="480" alt="RViz2 showing robot navigation and costmaps"> |
-| Physics-based simulation in a custom indoor world. | Robot localization, sensor visualization, and navigation costmaps. |
+<p align="center">
+  <img
+    src="https://github.com/user-attachments/assets/d40df4a0-048f-4152-818b-a91162a83639"
+    width="450"
+    alt="Robot in the Gazebo indoor environment"
+  />
+</p>
+
+### RViz2 — Navigation and Costmaps
+
+<p align="center">
+  <img
+    src="https://github.com/user-attachments/assets/c82dc293-cc08-413c-846c-09fa1967adc8"
+    width="450"
+    alt="RViz2 showing robot navigation and costmaps"
+  />
+</p>
 
 ### 🎬 Autonomous Navigation Demo
 
@@ -62,17 +74,17 @@ https://github.com/user-attachments/assets/097effc9-ad3a-4073-8c11-8626ff978b78
 
 | Component | Technology | Purpose |
 |:---|:---|:---|
-| Robotics Middleware | ROS 2 Jazzy Jalisco | Nodes, topics, services, actions, and coordinate transforms |
-| Simulation | Gazebo Harmonic | Physics simulation, environment modeling, and sensor simulation |
-| Robot Description | URDF / Xacro | Robot geometry, links, joints, and sensor placement |
-| Simulation Integration | `ros_gz_bridge` | Communication between Gazebo and ROS 2 |
-| State Publishing | `robot_state_publisher` | Publishes robot link transforms |
-| Visualization | RViz2 | Displays sensor data, TF frames, maps, and navigation costmaps |
-| Localization | Nav2 AMCL | Estimates the robot's pose on a known map |
-| Global Planning | Nav2 NavFn | Computes global paths through the map |
-| Local Planning | DWB Controller | Evaluates motion trajectories and generates velocity commands |
-| Costmaps | `nav2_costmap_2d` | Represents obstacles and inflation regions |
-| Navigation Execution | Nav2 Behavior Tree Navigator | Coordinates navigation actions and recovery behaviors |
+| Middleware | ROS 2 Jazzy | Nodes, topics, services, and actions |
+| Simulation | Gazebo Harmonic | Physics and sensor simulation |
+| Robot Model | URDF / Xacro | Links, joints, and geometry |
+| Simulation Bridge | `ros_gz_bridge` | Gazebo–ROS 2 communication |
+| State Publishing | `robot_state_publisher` | Robot coordinate transforms |
+| Visualization | RViz2 | Sensors, maps, and costmaps |
+| Localization | AMCL | Robot pose estimation |
+| Global Planner | NavFn | Global path planning |
+| Local Planner | DWB | Local trajectory control |
+| Costmaps | `nav2_costmap_2d` | Obstacle representation |
+| Navigation | Nav2 BT Navigator | Navigation task execution |
 
 ---
 
@@ -131,11 +143,11 @@ The diagram shows the intended frame hierarchy; the actual published tree depend
 
 | Transform | Responsibility |
 |:---|:---|
-| `map → odom` | AMCL corrects the robot's global pose estimate |
-| `odom → base_footprint` | Provides the robot's local odometry estimate |
-| `base_footprint → base_link` | Connects the ground projection to the robot chassis |
-| `base_link → lidar_link` | Defines the LiDAR's position and orientation |
-| `base_link → camera_link` | Defines the camera's position and orientation |
+| `map → odom` | AMCL corrects the global pose estimate |
+| `odom → base_footprint` | Local odometry estimate |
+| `base_footprint → base_link` | Ground projection to chassis |
+| `base_link → lidar_link` | LiDAR position and orientation |
+| `base_link → camera_link` | Camera position and orientation |
 
 `robot_state_publisher` publishes transforms derived from the robot description and joint states. The odometry and localization components provide the corresponding dynamic transforms.
 
@@ -143,18 +155,18 @@ The diagram shows the intended frame hierarchy; the actual published tree depend
 
 ## 🔄 Gazebo–ROS 2 Communication
 
-The `gazebo_bridge.yaml` configuration defines the communication between Gazebo Harmonic and ROS 2.
+The `gazebo_bridge.yaml` configuration defines communication between Gazebo Harmonic and ROS 2.
 
 | ROS 2 Topic | Message Type | Direction | Purpose |
 |:---|:---|:---|:---|
-| `/clock` | `rosgraph_msgs/msg/Clock` | Gazebo → ROS 2 | Synchronizes simulation time |
-| `/cmd_vel` | `geometry_msgs/msg/Twist` | ROS 2 → Gazebo | Sends velocity commands |
-| `/scan` | `sensor_msgs/msg/LaserScan` | Gazebo → ROS 2 | Publishes 2D LiDAR measurements |
-| `/tf` | `tf2_msgs/msg/TFMessage` | Gazebo → ROS 2 | Provides simulation transform data |
-| `/joint_states` | `sensor_msgs/msg/JointState` | Gazebo → ROS 2 | Publishes joint positions and velocities |
-| `/camera/image_raw` | `sensor_msgs/msg/Image` | Gazebo → ROS 2 | Publishes camera images |
+| `/clock` | `Clock` | Gazebo → ROS 2 | Simulation time |
+| `/cmd_vel` | `Twist` | ROS 2 → Gazebo | Velocity commands |
+| `/scan` | `LaserScan` | Gazebo → ROS 2 | LiDAR measurements |
+| `/tf` | `TFMessage` | Gazebo → ROS 2 | Coordinate transforms |
+| `/joint_states` | `JointState` | Gazebo → ROS 2 | Joint states |
+| `/camera/image_raw` | `Image` | Gazebo → ROS 2 | Camera images |
 
-The exact topic names and directions depend on the configured bridge mappings and Gazebo plugins.
+The exact topic names, message types, and directions depend on the configured bridge mappings and Gazebo plugins.
 
 ---
 
@@ -188,7 +200,7 @@ Together, these components allow the robot to navigate toward target poses in th
 
 **Problem**
 
-During simulation startup, the robot and its sensor plugins must be initialized with the correct model and joint references. In a complex world containing multiple meshes, spawning the robot before the simulation is ready can lead to initialization or sensor-frame issues.
+During simulation startup, the robot and its sensor plugins must initialize with the correct model and joint references. In a complex world containing multiple meshes, spawning the robot before the simulation is ready can lead to initialization or sensor-frame issues.
 
 **Solution**
 
