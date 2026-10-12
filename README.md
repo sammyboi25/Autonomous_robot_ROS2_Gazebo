@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/License-MIT-purple?style=flat-square" alt="MIT License">
 </p>
 
-An autonomous mobile robot simulation built using **ROS 2 Jazzy Jalisco** and **Gazebo Harmonic**. This project brings together robot modeling, physics-based simulation, sensor integration, localization, and autonomous navigation in a custom indoor environment.
+An autonomous mobile robot simulation built using **ROS 2 Jazzy** and **Gazebo Harmonic**. This project brings together robot modeling, physics-based simulation, sensor integration, localization, and autonomous navigation in a custom indoor environment.
 
 The robot uses a **differential-drive configuration** with a 2D LiDAR and an RGB camera. Its URDF/Xacro model is spawned into a custom Gazebo world, while the ROS 2 Navigation Stack (Nav2) enables localization, obstacle-aware path planning, and autonomous movement toward target poses.
 
@@ -54,7 +54,9 @@ A compact, square differential-drive robot featuring two powered wheels, a caste
 
 Watch the robot navigate through the simulated environment.
 
-https://github.com/user-attachments/assets/097effc9-ad3a-4073-8c11-8626ff978b78
+
+https://github.com/user-attachments/assets/60f6ef86-c4a4-4c6a-84e3-45d47261bb7f
+
 
 ---
 
