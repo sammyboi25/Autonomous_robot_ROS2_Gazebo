@@ -9,20 +9,19 @@ An end-to-end autonomous mobile robot (AMR) platform built using **ROS 2 Jazzy J
 
 ---
 
-## 📸 Media & Demos
-<img width="830" height="769" alt="Screenshot from 2026-10-12 22-31-48" src="https://github.com/user-attachments/assets/0a9f5de8-94ff-45d7-8f55-1ed691918038" />
-<img width="2418" height="1539" alt="Screenshot from 2026-10-12 22-33-47" src="https://github.com/user-attachments/assets/d40df4a0-048f-4152-818b-a91162a83639" />
-<img width="2560" height="1600" alt="Screenshot from 2026-10-12 22-58-06" src="https://github.com/user-attachments/assets/c82dc293-cc08-413c-846c-09fa1967adc8" />
+## The Robot
+A square differential drive robot with a 2 driving wheels, a caster wheel, 2D lidar, and a camera
+<img width="630" height="469" alt="Screenshot from 2026-10-12 22-31-48" src="https://github.com/user-attachments/assets/0a9f5de8-94ff-45d7-8f55-1ed691918038" />
 
 
 | Gazebo Harmonic World (`home.sdf`) | RViz2 Navigation & Costmaps |
 | :---: | :---: |
-| <!-- PLACE YOUR GAZEBO WORLD PHOTO HERE --> <img src="https://via.placeholder.com/600x350.png?text=Add+Gazebo+World+Screenshot+Here" width="100%"/> | <!-- PLACE YOUR RVIZ SCREENSHOT HERE --> <img src="https://via.placeholder.com/600x350.png?text=Add+RViz2+Navigation+Screenshot+Here" width="100%"/> |
+| <!-- PLACE YOUR GAZEBO WORLD PHOTO HERE --> <img width="1418" height="639" alt="Screenshot from 2026-10-12 22-33-47" src="https://github.com/user-attachments/assets/d40df4a0-048f-4152-818b-a91162a83639" /> | <!-- PLACE YOUR RVIZ SCREENSHOT HERE --> <img width="1560" height="600" alt="Screenshot from 2026-10-12 22-58-06" src="https://github.com/user-attachments/assets/c82dc293-cc08-413c-846c-09fa1967adc8" /> |
 
 ### 🎬 Autonomous Navigation Demo
-<!-- PLACE YOUR VIDEO OR GIF HERE -->
-<!-- To upload a video: GitHub supports MP4/GIF uploads directly in PRs/issues/READMEs -->
-https://github.com/sammyboi25/Autonomous_robot_Swayam_ros2/assets/YOUR_VIDEO_DEMO.mp4
+
+
+https://github.com/user-attachments/assets/097effc9-ad3a-4073-8c11-8626ff978b78
 
 ---
 
@@ -85,6 +84,40 @@ Communication between the simulation engine and ROS 2 is configured via `gazebo_
 * **The Solution:** Implemented an explicit execution delay in the XML bringup script using `<timer period="5.0">`. Delaying `ros_gz_sim create` allows Gazebo's physics engine and scene broadcaster to stabilize fully before inserting the robot entity.
 
 ---
+
+## 🚀 Getting Started & How to Run
+
+### 1. Installation & Dependencies
+Ensure ROS 2 Jazzy and Gazebo Harmonic are installed on Ubuntu 24.04 LTS:
+```bash
+sudo apt update
+sudo apt install ros-jazzy-ros-gz-sim ros-jazzy-ros-gz-bridge ros-jazzy-navigation2 ros-jazzy-nav2-bringup -y
+```
+
+### 2. Workspace Setup & Build
+```bash
+# Clone the repository
+git clone [https://github.com/sammyboi25/Autonomous_robot_Swayam_ros2.git](https://github.com/sammyboi25/Autonomous_robot_Swayam_ros2.git)
+cd Autonomous_robot_Swayam_ros2
+
+# Build and source the workspace
+colcon build --symlink-install
+source install/setup.bash
+```
+
+### 3. Step 1: Launch Simulation
+Bring up Gazebo Harmonic with `home.sdf`, spawn the robot, start the topic bridge, and open RViz2:
+```bash
+ros2 launch robot_bringup sim_launch.xml
+```
+
+### 4. Step 2: Launch Autonomous Navigation
+In a second terminal, launch the Nav2 navigation stack (AMCL, Costmaps, Planners):
+```bash
+cd Autonomous_robot_Swayam_ros2
+source install/setup.bash
+ros2 launch robot_bringup nav_launch.py
+```
 
 ## 📁 Repository Structure
 
