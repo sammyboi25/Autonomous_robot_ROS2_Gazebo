@@ -1,149 +1,348 @@
-# 🤖 Autonomous Differential Drive Mobile Robot (ROS 2 Jazzy & Gazebo Harmonic)
+# 🤖 Autonomous Differential-Drive Mobile Robot
+### ROS 2 Jazzy • Gazebo Harmonic • Nav2
 
-![ROS 2 Jazzy](https://img.shields.io/badge/ROS2-Jazzy-blue?style=flat-square&logo=ros)
-![Gazebo Harmonic](https://img.shields.io/badge/Gazebo-Harmonic-orange?style=flat-square)
-![Nav2](https://img.shields.io/badge/Navigation-Nav2-green?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-purple?style=flat-square)
+<p align="center">
+  <img src="https://img.shields.io/badge/ROS_2-Jazzy-blue?style=flat-square&logo=ros" alt="ROS 2 Jazzy">
+  <img src="https://img.shields.io/badge/Gazebo-Harmonic-orange?style=flat-square" alt="Gazebo Harmonic">
+  <img src="https://img.shields.io/badge/Navigation-Nav2-green?style=flat-square" alt="Nav2">
+  <img src="https://img.shields.io/badge/Language-Python%20%7C%20C%2B%2B-blueviolet?style=flat-square" alt="Python and C++">
+  <img src="https://img.shields.io/badge/License-MIT-purple?style=flat-square" alt="MIT License">
+</p>
 
-An end-to-end autonomous mobile robot (AMR) platform built using **ROS 2 Jazzy Jalisco** and **Gazebo Harmonic**. This project features a custom $0.5\text{m} \times 0.5\text{m}$ differential-drive robot modeled via URDF/Xacro, spawned into a complex indoor simulation environment (`home.sdf`), localized using Adaptive Monte Carlo Localization (AMCL), and navigated autonomously via the Nav2 stack (DWB local planner and NavFn A* global planner).
+An autonomous mobile robot simulation built using **ROS 2 Jazzy Jalisco** and **Gazebo Harmonic**. This project brings together robot modeling, physics-based simulation, sensor integration, localization, and autonomous navigation in a custom indoor environment.
+
+The robot uses a **differential-drive configuration** with a 2D LiDAR and an RGB camera. Its URDF/Xacro model is spawned into a custom Gazebo world, while the ROS 2 Navigation Stack (Nav2) enables localization, obstacle-aware path planning, and autonomous movement toward target poses.
+
+The project is organized into two modular ROS 2 packages: `robot_des` for the robot model and `robot_bringup` for simulation, configuration, and navigation.
 
 ---
 
-## The Robot
-A square differential drive robot with a 2 driving wheels, a caster wheel, 2D lidar, and a camera
-<img width="630" height="469" alt="Screenshot from 2026-10-12 22-31-48" src="https://github.com/user-attachments/assets/0a9f5de8-94ff-45d7-8f55-1ed691918038" />
+## 📸 Project Demo
 
+### The Robot
 
-| Gazebo Harmonic World (`home.sdf`) | RViz2 Navigation & Costmaps |
-| :---: | :---: |
-| <!-- PLACE YOUR GAZEBO WORLD PHOTO HERE --> <img width="1418" height="639" alt="Screenshot from 2026-10-12 22-33-47" src="https://github.com/user-attachments/assets/d40df4a0-048f-4152-818b-a91162a83639" /> | <!-- PLACE YOUR RVIZ SCREENSHOT HERE --> <img width="1560" height="600" alt="Screenshot from 2026-10-12 22-58-06" src="https://github.com/user-attachments/assets/c82dc293-cc08-413c-846c-09fa1967adc8" /> |
+A compact, square differential-drive mobile robot featuring two powered wheels, a caster wheel, a 2D LiDAR, and a camera.
+
+<p align="center">
+  <img
+    src="https://github.com/user-attachments/assets/0a9f5de8-94ff-45d7-8f55-1ed691918038"
+    width="600"
+    alt="Differential-drive robot model"
+  />
+</p>
+
+### Simulation and Navigation
+
+| Gazebo Harmonic — Indoor Environment | RViz2 — Navigation and Costmaps |
+|:---:|:---:|
+| <img src="https://github.com/user-attachments/assets/d40df4a0-048f-4152-818b-a91162a83639" width="480" alt="Robot in the Gazebo indoor environment"> | <img src="https://github.com/user-attachments/assets/c82dc293-cc08-413c-846c-09fa1967adc8" width="480" alt="RViz2 showing robot navigation and costmaps"> |
+| Physics-based simulation in a custom indoor world. | Robot localization, sensor visualization, and navigation costmaps. |
 
 ### 🎬 Autonomous Navigation Demo
 
+Watch the robot navigate through the simulated environment.
 
 https://github.com/user-attachments/assets/097effc9-ad3a-4073-8c11-8626ff978b78
 
 ---
 
-## 📌 Project Overview
+## ✨ Key Features
 
-This project implements a complete ROS 2 robotics architecture cleanly split into two modular packages:
-1. **`robot_des`**: Contains physical, visual, inertial, and kinematic URDF/Xacro definitions for the robot chassis, wheels, 2D Lidar, and RGB camera sensors.
-2. **`robot_bringup`**: Manages environment configuration, ROS-Gazebo message bridging (`ros_gz_bridge`), RViz visualizers, occupancy maps, AMCL localization, and Nav2 path planning execution.
-
----
-
-## 🛠️ Software Stack & Technologies Used
-
-### Core Framework & Simulation
-* **ROS 2 Jazzy Jalisco:** Core robotics middleware managing nodes, topics, services, and action servers.
-* **Gazebo Harmonic (`gz-sim`):** Physics engine simulating rigid body dynamics and sensor rendering in the `home.sdf` world.
-* **`ros_gz_bridge`:** Parameter bridge translating bi-directional messages between native Gazebo topics (`gz.msgs`) and ROS 2 topics (`sensor_msgs`, `geometry_msgs`, `nav_msgs`).
-* **`robot_state_publisher`:** Parses Xacro URDF files to calculate and broadcast 3D coordinate frame transformations (`/tf`).
-* **RViz2:** Primary visualizer displaying Lidar point streams, global/local costmaps, localization particle clouds, and active target vectors.
-
-### Navigation & Localization Stack (Nav2)
-* **`nav2_amcl`:** Adaptive Monte Carlo Localization configured specifically for differential drive motion kinematics.
-* **`nav2_navfn_planner`:** Global path planning using the A* grid search algorithm.
-* **`dwb_core` (DWB Local Planner):** Local path execution and trajectory evaluation tuned for square footprint kinematics.
-* **`nav2_costmap_2d`:** Dual-layer obstacle representation (Static, Obstacle, and Inflation layers).
-* **`nav2_bt_navigator`:** Behavior-tree orchestrator managing task execution and recovery behaviors (`Spin`, `BackUp`).
-* **`velocity_smoother` & `collision_monitor`:** Acceleration limits and real-time bounding box safety checks.
+- **Custom Robot Modeling:** A differential-drive robot designed using URDF/Xacro, including chassis geometry, wheel joints, and sensor mounting positions.
+- **Physics-Based Simulation:** Robot simulation in Gazebo Harmonic using a custom indoor environment.
+- **Sensor Integration:** Simulated 2D LiDAR and RGB camera, with sensor data bridged between Gazebo and ROS 2.
+- **Robot Localization:** Adaptive Monte Carlo Localization (AMCL) estimates the robot's pose within a known map.
+- **Autonomous Navigation:** Nav2 coordinates global path planning, local trajectory planning, and navigation execution.
+- **Obstacle-Aware Planning:** Costmaps represent obstacles and support collision-aware navigation.
+- **Modular Architecture:** Separate robot-description and bringup packages simplify development and configuration.
 
 ---
 
-## 📐 Architecture & Coordinate Frames
+## 🛠️ Technology Stack
 
-### 1. Transform Tree (TF Hierarchy)
-The system maintains a spatial tree ensuring all relative frame movements align with the global world origin:
-
-$$\text{map} \xrightarrow[\text{AMCL}]{\text{Localization Drift Fix}} \text{odom} \xrightarrow[\text{Gazebo Diff-Drive}]{\text{Wheel Encoders}} \text{base\_footprint} \xrightarrow[\text{URDF}]{\text{Chassis Center}} \text{base\_link} \xrightarrow[\text{URDF Mount}]{\text{Sensor Position}} \text{lidar\_link}$$
-
-* **`map` $\rightarrow$ `odom`:** Published by **AMCL** to correct cumulative wheel encoder drift.
-* **`odom` $\rightarrow$ `base_footprint`:** Published by Gazebo odometry plugins, providing continuous smooth displacement data.
-* **`base_footprint` $\rightarrow$ `base_link` $\rightarrow$ `lidar_link`:** Calculated by `robot_state_publisher` based on physical joint origins in `robot.urdf.xacro`.
-
-### 2. ROS 2 $\leftrightarrow$ Gazebo Harmonic Bridge Mapping
-Communication between the simulation engine and ROS 2 is configured via `gazebo_bridge.yaml`:
-
-| ROS 2 Topic | Gazebo Topic | Message Type | Direction | Purpose |
-| :--- | :--- | :--- | :--- | :--- |
-| `/clock` | `/clock` | `rosgraph_msgs/msg/Clock` | GZ $\rightarrow$ ROS | Synchronizes simulation clock |
-| `/cmd_vel` | `/cmd_vel` | `geometry_msgs/msg/Twist` | ROS $\rightarrow$ GZ | Motor speed commands |
-| `/scan` | `/scan` | `sensor_msgs/msg/LaserScan` | GZ $\rightarrow$ ROS | 2D Lidar range measurements |
-| `/tf` | `/model/my_robot/tf` | `tf2_msgs/msg/TFMessage` | GZ $\rightarrow$ ROS | Wheel & model transform poses |
-| `/joint_states` | `/joint_states` | `sensor_msgs/msg/JointState` | GZ $\rightarrow$ ROS | Wheel joint angular rotations |
-| `/camera/image_raw` | `/camera/image_raw` | `sensor_msgs/msg/Image` | GZ $\rightarrow$ ROS | Camera video feed |
+| Component | Technology | Purpose |
+|:---|:---|:---|
+| Robotics Middleware | ROS 2 Jazzy Jalisco | Nodes, topics, services, actions, and coordinate transforms |
+| Simulation | Gazebo Harmonic | Physics simulation, environment modeling, and sensor simulation |
+| Robot Description | URDF / Xacro | Robot geometry, links, joints, and sensor placement |
+| Simulation Integration | `ros_gz_bridge` | Communication between Gazebo and ROS 2 |
+| State Publishing | `robot_state_publisher` | Publishes robot link transforms |
+| Visualization | RViz2 | Displays sensor data, TF frames, maps, and navigation costmaps |
+| Localization | Nav2 AMCL | Estimates the robot's pose on a known map |
+| Global Planning | Nav2 NavFn | Computes global paths through the map |
+| Local Planning | DWB Controller | Evaluates motion trajectories and generates velocity commands |
+| Costmaps | `nav2_costmap_2d` | Represents obstacles and inflation regions |
+| Navigation Execution | Nav2 Behavior Tree Navigator | Coordinates navigation actions and recovery behaviors |
 
 ---
 
-## ⚡ Technical Challenges & Solutions
+## 🏗️ System Architecture
 
-### Gazebo Harmonic Asynchronous Startup & Sensor Detachment
-* **The Problem:** In complex environments with multiple 3D mesh assets (`home.sdf` containing beds, tables, and furniture), Gazebo's render engine took several seconds to instantiate mesh geometry. When spawning the robot immediately upon launch, the sensor plugins initialized before joint references registered, causing the Lidar frame to detach from `lidar_joint` and float at the origin plane $(0,0,0)$.
-* **The Solution:** Implemented an explicit execution delay in the XML bringup script using `<timer period="5.0">`. Delaying `ros_gz_sim create` allows Gazebo's physics engine and scene broadcaster to stabilize fully before inserting the robot entity.
+The project is divided into two ROS 2 packages.
+
+### 1. `robot_des` — Robot Description
+
+Defines the robot's physical and visual model.
+
+Responsibilities include:
+
+- Chassis and wheel geometry.
+- Differential-drive wheel joints and caster configuration.
+- LiDAR and camera mounting positions.
+- URDF/Xacro descriptions used to construct the robot model.
+
+**Main file:** `robot.urdf.xacro`
+
+### 2. `robot_bringup` — Simulation and Navigation
+
+Coordinates the simulation environment and autonomous navigation system.
+
+Responsibilities include:
+
+- Launching the Gazebo world and spawning the robot.
+- Configuring the Gazebo–ROS 2 communication bridge.
+- Publishing robot state and visualizing the simulation in RViz2.
+- Loading occupancy maps and navigation parameters.
+- Configuring AMCL, costmaps, planners, and navigation execution.
+
+**Key configuration files:**
+
+- `sim_launch.xml`
+- `nav_launch.py`
+- `gazebo_bridge.yaml`
+- `nav2_params.yaml`
 
 ---
 
-## 🚀 Getting Started & How to Run
+## 📐 Coordinate Frames and TF
 
-### 1. Installation & Dependencies
-Ensure ROS 2 Jazzy and Gazebo Harmonic are installed on Ubuntu 24.04 LTS:
-```bash
-sudo apt update
-sudo apt install ros-jazzy-ros-gz-sim ros-jazzy-ros-gz-bridge ros-jazzy-navigation2 ros-jazzy-nav2-bringup -y
+The robot uses a hierarchical transform tree to represent the relationships between the global map, robot chassis, and sensors.
+
+```text
+map
+ └── odom
+      └── base_footprint
+           └── base_link
+                ├── lidar_link
+                └── camera_link
 ```
 
-### 2. Workspace Setup & Build
-```bash
-# Clone the repository
-git clone [https://github.com/sammyboi25/Autonomous_robot_Swayam_ros2.git](https://github.com/sammyboi25/Autonomous_robot_Swayam_ros2.git)
-cd Autonomous_robot_Swayam_ros2
+The diagram shows the intended frame hierarchy; the actual published tree depends on the configured Gazebo plugins and URDF/Xacro definitions.
 
-# Build and source the workspace
+| Transform | Responsibility |
+|:---|:---|
+| `map → odom` | AMCL corrects the robot's global pose estimate |
+| `odom → base_footprint` | Provides the robot's local odometry estimate |
+| `base_footprint → base_link` | Connects the ground projection to the robot chassis |
+| `base_link → lidar_link` | Defines the LiDAR's position and orientation |
+| `base_link → camera_link` | Defines the camera's position and orientation |
+
+`robot_state_publisher` publishes transforms derived from the robot description and joint states. The odometry and localization components provide the corresponding dynamic transforms.
+
+---
+
+## 🔄 Gazebo–ROS 2 Communication
+
+The `gazebo_bridge.yaml` configuration defines the communication between Gazebo Harmonic and ROS 2.
+
+| ROS 2 Topic | Message Type | Direction | Purpose |
+|:---|:---|:---|:---|
+| `/clock` | `rosgraph_msgs/msg/Clock` | Gazebo → ROS 2 | Synchronizes simulation time |
+| `/cmd_vel` | `geometry_msgs/msg/Twist` | ROS 2 → Gazebo | Sends velocity commands |
+| `/scan` | `sensor_msgs/msg/LaserScan` | Gazebo → ROS 2 | Publishes 2D LiDAR measurements |
+| `/tf` | `tf2_msgs/msg/TFMessage` | Gazebo → ROS 2 | Provides simulation transform data |
+| `/joint_states` | `sensor_msgs/msg/JointState` | Gazebo → ROS 2 | Publishes joint positions and velocities |
+| `/camera/image_raw` | `sensor_msgs/msg/Image` | Gazebo → ROS 2 | Publishes camera images |
+
+The exact topic names and directions depend on the configured bridge mappings and Gazebo plugins.
+
+---
+
+## 🧭 Autonomous Navigation Pipeline
+
+The navigation system combines localization, path planning, obstacle representation, and motion control.
+
+### Localization — AMCL
+
+Adaptive Monte Carlo Localization estimates the robot's pose using LiDAR observations and a known occupancy map.
+
+### Global Planning — NavFn
+
+The NavFn planner computes a path through the map from the robot's estimated position to the navigation goal.
+
+### Local Planning — DWB
+
+The Dynamic Window Approach-based controller evaluates candidate motion trajectories and generates velocity commands to follow the global path while accounting for obstacles and the robot's motion constraints.
+
+### Costmaps and Navigation Execution
+
+The costmaps represent obstacles using map and sensor information. Nav2's behavior tree navigator coordinates the navigation task and configured recovery behaviors.
+
+Together, these components allow the robot to navigate toward target poses in the simulated indoor environment.
+
+---
+
+## 🧩 Technical Challenges and Solutions
+
+### Gazebo Startup Timing and Sensor Placement
+
+**Problem**
+
+During simulation startup, the robot and its sensor plugins must be initialized with the correct model and joint references. In a complex world containing multiple meshes, spawning the robot before the simulation is ready can lead to initialization or sensor-frame issues.
+
+**Solution**
+
+An explicit startup delay was introduced in the simulation launch configuration using an XML timer:
+
+```xml
+<timer period="5.0">
+```
+
+This delays the associated launch action, allowing additional time for the simulation to initialize before the robot is spawned.
+
+The delay is a startup-timing workaround rather than a guarantee that every plugin has finished initializing. A more robust implementation can also check for the required simulation services and entities before spawning the robot.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Ubuntu 24.04 LTS
+- ROS 2 Jazzy Jalisco
+- Gazebo Harmonic
+- Colcon build tools
+- Required ROS 2 packages for simulation, robot description, and navigation
+
+### 1. Install Dependencies
+
+Install the core simulation and navigation packages:
+
+```bash
+sudo apt update
+
+sudo apt install -y \
+    ros-jazzy-ros-gz-sim \
+    ros-jazzy-ros-gz-bridge \
+    ros-jazzy-navigation2 \
+    ros-jazzy-nav2-bringup \
+    ros-jazzy-xacro \
+    ros-jazzy-robot-state-publisher \
+    ros-jazzy-rviz2 \
+    python3-colcon-common-extensions
+```
+
+Make sure ROS 2 Jazzy is installed and sourced according to the official installation instructions.
+
+### 2. Clone the Repository
+
+```bash
+git clone https://github.com/sammyboi25/Autonomous_robot_Swayam_ros2.git
+
+cd Autonomous_robot_Swayam_ros2
+```
+
+### 3. Build the Workspace
+
+Build the packages from the repository root:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+
 colcon build --symlink-install
+
 source install/setup.bash
 ```
 
-### 3. Step 1: Launch Simulation
-Bring up Gazebo Harmonic with `home.sdf`, spawn the robot, start the topic bridge, and open RViz2:
+If the build fails because a package dependency is missing, install the dependency and rebuild.
+
+### 4. Launch the Simulation
+
+Start Gazebo Harmonic, spawn the robot, initialize the configured bridge, and open RViz2:
+
 ```bash
 ros2 launch robot_bringup sim_launch.xml
 ```
 
-### 4. Step 2: Launch Autonomous Navigation
-In a second terminal, launch the Nav2 navigation stack (AMCL, Costmaps, Planners):
+Wait for the simulation and robot to finish initializing.
+
+### 5. Launch Autonomous Navigation
+
+Open a second terminal:
+
 ```bash
 cd Autonomous_robot_Swayam_ros2
+
+source /opt/ros/jazzy/setup.bash
 source install/setup.bash
+
 ros2 launch robot_bringup nav_launch.py
 ```
+
+Once localization and navigation have initialized, use the configured RViz2 navigation interface to set an initial pose if required and send a navigation goal.
+
+**Note:** Navigation requires a compatible occupancy map and the corresponding map configuration. Ensure that the map and its YAML metadata are correctly configured before launching Nav2.
+
+---
 
 ## 📁 Repository Structure
 
 ```text
 Autonomous_robot_Swayam_ros2/
-├── .gitignore               # Excludes build/, install/, and log/ artifacts
-├── LICENSE                  # Open-source license file
-├── README.md                # Project documentation
+├── .gitignore
+├── LICENSE
+├── README.md
 └── src/
-    ├── robot_des/           # Kinematics & URDF description package
+    ├── robot_des/
     │   ├── urdf/
-    │   │   └── robot.urdf.xacro # Chassis geometry, links, joints, Lidar/Camera sensors
+    │   │   └── robot.urdf.xacro
     │   ├── package.xml
     │   └── setup.py
     │
-    └── robot_bringup/       # Simulation bringup & Navigation config package
+    └── robot_bringup/
         ├── config/
-        │   ├── gazebo_bridge.yaml # Topic mappings for ros_gz_bridge
-        │   └── nav2_params.yaml   # Configs for AMCL, DWB, Costmaps, and BT Navigator
+        │   ├── gazebo_bridge.yaml
+        │   └── nav2_params.yaml
         ├── launch/
-        │   ├── sim_launch.xml     # Spawns Gazebo world, robot, bridge, and RViz2
-        │   └── nav_launch.py      # Launches Nav2 localization and trajectory stack
+        │   ├── sim_launch.xml
+        │   └── nav_launch.py
         ├── maps/
-        │   ├── my_map.pgm         # Occupancy grid image
-        │   └── my_map.yaml        # Map metadata and resolution settings
+        │   ├── my_map.pgm
+        │   └── my_map.yaml
         ├── worlds/
-        │   └── home.sdf           # Gazebo Harmonic world file
+        │   └── home.sdf
         ├── package.xml
         └── setup.py
+```
+
+---
+
+## 📚 Learning Outcomes
+
+Through this project, I worked with:
+
+- Robot modeling using URDF/Xacro.
+- ROS 2 package organization and launch files.
+- Gazebo Harmonic simulation and ROS 2 integration.
+- Sensor communication and coordinate-frame management.
+- AMCL-based localization and occupancy maps.
+- Nav2 global planning, local trajectory control, and costmaps.
+- Debugging simulation startup and robot-model integration issues.
+
+---
+
+## 🔮 Future Improvements
+
+Potential extensions include:
+
+- **SLAM:** Build occupancy maps directly from simulated sensor data.
+- **Waypoint Navigation:** Execute multi-goal navigation tasks.
+- **Dynamic Obstacle Avoidance:** Evaluate navigation around moving objects.
+- **Robot Control:** Tune the differential-drive controller and navigation parameters.
+- **Perception:** Integrate camera-based object detection into navigation tasks.
+
+---
+
+## 📄 License
+
+This project is distributed under the MIT License. See the [`LICENSE`](LICENSE) file for details.
